@@ -1,0 +1,14 @@
+# Build artifacts
+ios/build/
+ios/Payload/
+ios/*.ipa
+*.ipa
+*.dSYM.zip
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Xcode
+xcuserdata/
+DerivedData/

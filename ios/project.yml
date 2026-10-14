@@ -1,0 +1,51 @@
+name: ScreenRecorder
+options:
+  bundleIdPrefix: com.screenrec
+  deploymentTarget:
+    iOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    APP_GROUP_ID: group.com.screenrec.app
+targets:
+  ScreenRecorder:
+    type: application
+    platform: iOS
+    sources:
+      - path: ScreenRecorder
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.screenrec.app
+        PRODUCT_NAME: ScreenRecorder
+        INFOPLIST_FILE: ScreenRecorder/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ScreenRecorder/ScreenRecorder.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+    dependencies:
+      - target: BroadcastExtension
+        embed: true
+    scheme: {}
+  BroadcastExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BroadcastExtension
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.screenrec.app.broadcast
+        PRODUCT_NAME: BroadcastExtension
+        INFOPLIST_FILE: BroadcastExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BroadcastExtension/BroadcastExtension.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        APPLICATION_EXTENSION_API_ONLY: YES
+    dependencies:
+      - sdk: ReplayKit.framework
+      - sdk: Photos.framework
+      - sdk: AVFoundation.framework

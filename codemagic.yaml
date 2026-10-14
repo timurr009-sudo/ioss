@@ -1,0 +1,35 @@
+workflows:
+  ios-ipa:
+    name: ScreenRecorder - unsigned IPA
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+    scripts:
+      - name: Install XcodeGen
+        script: brew install xcodegen
+      - name: Generate Xcode project
+        script: cd ios && xcodegen generate
+      - name: Build app (unsigned)
+        script: |
+          cd ios
+          xcodebuild \
+            -project ScreenRecorder.xcodeproj \
+            -scheme ScreenRecorder \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+      - name: Package IPA
+        script: |
+          cd ios
+          rm -rf Payload ScreenRecorder.ipa
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/ScreenRecorder.app Payload/
+          test -d Payload/ScreenRecorder.app/PlugIns/BroadcastExtension.appex
+          zip -qry ScreenRecorder.ipa Payload
+    artifacts:
+      - ios/ScreenRecorder.ipa

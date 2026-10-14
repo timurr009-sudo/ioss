@@ -1,0 +1,52 @@
+name: Build iOS IPA
+
+on:
+  push:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-ipa.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Build app (unsigned)
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -project ScreenRecorder.xcodeproj \
+            -scheme ScreenRecorder \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package IPA
+        working-directory: ios
+        run: |
+          rm -rf Payload ScreenRecorder.ipa
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/ScreenRecorder.app Payload/
+          test -d Payload/ScreenRecorder.app/PlugIns/BroadcastExtension.appex
+          zip -qry ScreenRecorder.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ScreenRecorder-ipa
+          path: ios/ScreenRecorder.ipa
+          if-no-files-found: error
